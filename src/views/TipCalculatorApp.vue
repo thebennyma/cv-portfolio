@@ -24,11 +24,36 @@
           <div class="bill__select-tip">
             <label class="title">Select Tip %</label>
             <div>
-              <button @click="fivePercent()">5%</button>
-              <button @click="tenPercent()">10%</button>
-              <button @click="fifteenPercent()">15%</button>
-              <button @click="twentyfivePercent()">25%</button>
-              <button @click="fifty()">50%</button>
+              <button
+                @click="fivePercent('five-percent')"
+                :class="{ active: getNameActive == 'five-percent' }"
+              >
+                5%
+              </button>
+              <button
+                @click="tenPercent('ten-percent')"
+                :class="{ active: getNameActive == 'ten-percent' }"
+              >
+                10%
+              </button>
+              <button
+                @click="fifteenPercent('fifteen-percent')"
+                :class="{ active: getNameActive == 'fifteen-percent' }"
+              >
+                15%
+              </button>
+              <button
+                @click="twentyfivePercent('twentyfive-percent')"
+                :class="{ active: getNameActive == 'twentyfive-percent' }"
+              >
+                25%
+              </button>
+              <button
+                @click="fifty('fifty-percent')"
+                :class="{ active: getNameActive == 'fifty-percent' }"
+              >
+                50%
+              </button>
               <button class="disable-button">custom</button>
             </div>
           </div>
@@ -60,7 +85,13 @@
               >{{ calculateTotalPerPerson }}
             </span>
           </div>
-          <button class="tip__reset">reset</button>
+          <button
+            class="tip__reset"
+            :class="{ active: isActiveResetButton }"
+            @click="resetButton"
+          >
+            reset
+          </button>
         </div>
       </div>
     </div>
@@ -82,6 +113,8 @@ export default {
       billTotal: null,
       totalPeople: null,
       percent: null,
+      getNameActive: null,
+      custom: null,
     };
   },
   computed: {
@@ -121,22 +154,46 @@ export default {
         return "$0.00";
       }
     },
+    isActiveResetButton() {
+      return this.billTotal != null &&
+        this.totalPeople != null &&
+        this.getNameActive != null
+        ? true
+        : false;
+    },
   },
   methods: {
-    fivePercent() {
+    fivePercent(value) {
       this.percent = this.billTotal * 0.05;
+      this.getNameActive = value;
     },
-    tenPercent() {
+    tenPercent(value) {
       this.percent = this.billTotal * 0.1;
+      this.getNameActive = value;
     },
-    fifteenPercent() {
+    fifteenPercent(value) {
       this.percent = this.billTotal * 0.15;
+      this.getNameActive = value;
     },
-    twentyfivePercent() {
+    twentyfivePercent(value) {
       this.percent = this.billTotal * 0.2;
+      this.getNameActive = value;
     },
-    fifty() {
+    fifty(value) {
       this.percent = this.billTotal * 0.5;
+      this.getNameActive = value;
+    },
+    resetButton() {
+      if (
+        this.billTotal != null &&
+        this.totalPeople != null &&
+        this.getNameActive != null
+      ) {
+        this.billTotal = null;
+        this.totalPeople = null;
+        this.percent = null;
+        this.getNameActive = null;
+      }
     },
   },
 };
@@ -197,6 +254,11 @@ export default {
             border-radius: 0.5rem;
           }
 
+          input[type="number"]:focus {
+            border: 1px solid hsl(172, 67%, 45%);
+            outline: none;
+          }
+
           input[type="number"]::-webkit-inner-spin-button,
           input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -233,10 +295,16 @@ export default {
               font-weight: 600;
               cursor: pointer;
             }
-          }
-        }
 
-        &__number-people {
+            .active {
+              background: hsl(172, 67%, 45%);
+            }
+
+            .disable-button {
+              opacity: 0.2;
+              cursor: not-allowed;
+            }
+          }
         }
       }
 
@@ -279,23 +347,26 @@ export default {
         &__reset {
           width: 100%;
           border: none;
-          padding: 0.5rem;
+          padding: 0.8rem;
           text-transform: uppercase;
           font-weight: bold;
           border-radius: 0.3rem;
-          opacity: 0.2;
           position: relative;
           top: 50px;
+          font-size: 1.5rem;
+          background: hsl(186, 14%, 43%);
+          opacity: 0.5;
+          pointer-events: none;
+        }
+
+        .active {
+          background: hsl(172, 67%, 45%);
+          cursor: pointer;
+          pointer-events: auto;
+          opacity: 1;
         }
       }
     }
-
-    // @media (min-width:320px)  { /* smartphones, iPhone, portrait 480x320 phones */ }
-    // @media (min-width:481px)  { /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */ }
-    // @media (min-width:641px)  { /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */ }
-    // @media (min-width:961px)  { /* tablet, landscape iPad, lo-res laptops ands desktops */ }
-    // @media (min-width:1025px) { /* big landscape tablets, laptops, and desktops */ }
-    // @media (min-width:1281px) { /* hi-res laptops and desktops */ }
   }
 
   // - Very dark cyan: hsl(183, 100%, 15%)
@@ -317,7 +388,7 @@ export default {
     &__container {
       padding: 0rem;
       &__title {
-        padding-bottom: 5rem;
+        padding: 5rem 0;
       }
       &__check {
         grid-template-columns: 1fr;
@@ -326,6 +397,17 @@ export default {
         .tip {
           &__reset {
             top: 0px;
+          }
+        }
+
+        .bill {
+          &__title,
+          &__number-people {
+            div {
+              input {
+                width: calc(100% - 30px);
+              }
+            }
           }
         }
       }
